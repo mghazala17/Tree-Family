@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+
+	<meta charset="utf-8">
+
+	<title>Tree Example</title>
+
+	<style>
+ 
+  .node {
+	cursor: pointer;
+  }
+
+  .node circle {
+	fill: #fff;
+	stroke: steelblue;
+	stroke-width: 3px;
+  }
+
+  .node text {
+	font: 16px sans-serif;
+  }
+
+  .node:hover text {
+  	font-weight: bold;
+  }
+
+
+  .node:hover circle {
+	stroke-width: 5px;
+  }
+
+  .link {
+	fill: none;
+	stroke: #ccc;
+	stroke-width: 2px;
+  }
+
+  div.tooltip{
+	position: absolute;  
+	text-align: center;
+	line-height: 1;   
+	width: 200px;     	 
+	height: 50px;    	 
+	padding: 2px;  	 
+	font: 14px sans-serif;   
+	background: rgba(0,0,0,1);
+	color: red;
+	border: 2px;    
+	border-radius: 6px;	 
+	pointer-events: none;
+
+   /*fade in tooltip*/
+	opacity: 0;
+	transition: opacity 1s;   
+
+ }
+
+h1 {
+  color:#990000;
+   text-align: center;
+   font-family: sans-serif;
+font-weight: 1000;
+
+}
+
+	</style>
+
+  </head>
+
+  <body>
+
+<h1> Fun Facts about Trump's Cabinet </h1>
+
+<!-- load the d3.js library -->
+<script src="http://d3js.org/d3.v3.min.js"></script>
+ 
+<script>
+
+
+var treeData = [
+  {
+
+	"name": "Trump",
+  "tip":"During his campaign his diet consisted of Domino's, Mcdonalds and KFC",
+
+	"children": [
+  	{
+    	"name": "No Consent Needed",
+      "tip":"No consent needed from the senate",
+    	"parent": "Trump",
+    	"children": [
+      	{
+        	"name": "Vice President Mike Pence",
+        	"tip": "Was a democrat as a teenager",
+        	"parent": "No Consent Needed"
+      	}
+    	]
+  	},
+  	{
+    	"name": "Pending",
+      "tip":"Pending confirmation from the senate",
+    	"parent": "Trump",
+    	"children": [
+      	{
+        	"name": "Sec. of Agriculture Sonny Perdue",
+        	"tip": "Used to be a democrat until 1998"
+      	},
+      	{
+        	"name": "Sec. of Labor Alexander Acosta",
+        	"tip": "Dean of Florida International University College of Law"
+      	}
+    	]
+  	},
+  	{
+    	"name": "Confirmed",
+      "tip":"Confirmed by full senate",
+    	"children": [
+    	{
+      	"name": "Sec. of State Rex Tillerson",
+      	"tip": "Runs a horse ranch in Texas with his wife"
+    	},
+    	{
+      	"name": "Sec. of the Treasury Steven Mnuchin",
+      	"tip": "Executive producer on The Lego Movie and American Sniper"
+    	},
+    	{
+      	"name":"Sec. of Defense Gen. James Mattis",
+      	"tip": "Doesn't own a TV"
+    	},
+    	{
+      	"name":"Attorney General Jeff Sessions",
+      	"tip": "Is an Eagle Scout"
+    	},
+    	{
+      	"name":"Sec. of HHS Tom Price",
+      	"tip": "Orthopedic surgeon"
+    	},
+    	{
+      	"name":"Sec. of Transportation Elaine Chao",
+      	"tip": "The bread winner in her family"
+    	},
+    	{
+      	"name":"Sec. of Education Betsy Devos",
+      	"tip": "Refused to support Trump"
+    	},
+    	{
+      	"name":"Sec. of Veterans Affairs David Shulkin",
+      	"tip": "Left a $1.3M job for a $170K job at the VA"
+    	},
+    	{
+      	"name":"Sec. of Homeland John F. Kelly",
+      	"tip": "Never supported Trump during the campaign"
+    	},
+    	{
+      	"name": " Sec. of Interior Ryan Zinke",
+      	"tip": "Fifth generation Montanan",
+      	"parent": "Confirmed By Committee"
+    	},
+      	{
+      	"name": " Sec. of Commerce Wilbur Ross",
+      	"tip": "Nickname is King of Bankruptcy",
+      	"parent": "Confirmed By Committee"
+    	},
+      {
+        "name":"Sec. of HUD Ben Carson",
+        "tip": "Almost stabbed a friend",
+        "parent":"Confirmed By Full"
+      },
+      {
+        "name":"Sec. of Energy Rick Perry",
+        "tip": "Met his wife in elementary school",
+        "parent":"Confirmed By Full"
+      }
+    	]
+  }
+]
+}
+];
+
+
+// ************** Generate the tree diagram  *****************
+var margin = {top: 20, right: 120, bottom: 20, left: 120},
+  width = 960 - margin.right - margin.left,
+  height = 500 - margin.top - margin.bottom;
+ 
+var i = 0,
+  duration = 750,
+  root;
+
+var tree = d3.layout.tree()
+  .size([height, width]);
+
+var diagonal = d3.svg.diagonal()
+  .projection(function(d) { return [d.y, d.x]; });
+
+var svg = d3.select("body").append("svg")
+  .attr("width", width + margin.right + margin.left)
+  .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+root = treeData[0];
+root.x0 = height / 2;
+root.y0 = 0;
+ 
+update(root);
+
+d3.select(self.frameElement).style("height", "500px");
+
+function update(source) {
+
+  console.log(source);
+  console.log(source.name);
+
+//put if statement here
+
+
+
+	// Define the div for the tooltip
+  var div = d3.select("body").append("div")
+	.attr("class", "tooltip")  	 
+	.style("opacity", 0);
+
+
+
+  // Compute the new tree layout.
+  var nodes = tree.nodes(root).reverse(),
+	links = tree.links(nodes);
+
+  // Normalize for fixed-depth.
+  nodes.forEach(function(d) { d.y = d.depth * 100; });
+
+  // Update the nodes…
+  var node = svg.selectAll("g.node")
+	.data(nodes, function(d) { return d.id || (d.id = ++i); });
+
+  // Enter any new nodes at the parent's previous position.
+  var nodeEnter = node.enter().append("g")
+	.attr("class", "node")
+	.attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+	.on("click", click);
+
+  nodeEnter.append("circle")
+	.attr("r", 1e-6)
+	.style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+
+  nodeEnter.append("text")
+	.attr("x", function(d) { return d.children || d._children ? -13 : 13; })
+	.attr("dy", ".35em")
+	.attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
+	.text(function(d) { return d.name; })
+	.style("fill-opacity", 1e-6)
+
+
+	.on("mouseover", function(d) {
+  	div.transition()   
+    	.duration(100)    
+    	.style("opacity", .9);    
+
+  	div.html(d.tip)  
+  	.style("left", (d3.event.pageX) + "px")   
+  	.style("top", (d3.event.pageY - 28) + "px");  
+	})
+	.on("mouseout", function (d) {
+  	div.transition()    
+    	.duration(100)    
+    	.style("opacity", 0);
+	})
+
+  // Transition nodes to their new position.
+  var nodeUpdate = node.transition()
+	.duration(duration)
+	.attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
+
+  nodeUpdate.select("circle")
+	.attr("r", 5)
+	.style("fill", function(d) { return d._children ? "steelblue" : "#fff"; });
+
+  nodeUpdate.select("text")
+	.style("fill-opacity", 1);
+
+  // Transition exiting nodes to the parent's new position.
+  var nodeExit = node.exit().transition()
+	.duration(duration)
+	.attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
+	.remove();
+
+  nodeExit.select("circle")
+	.attr("r", 1e-6);
+
+  nodeExit.select("text")
+	.style("fill-opacity", 1e-6);
+
+  // Update the links…
+  var link = svg.selectAll("path.link")
+	.data(links, function(d) { return d.target.id; });
+
+  // Enter any new links at the parent's previous position.
+  link.enter().insert("path", "g")
+	.attr("class", "link")
+	.attr("d", function(d) {
+	var o = {x: source.x0, y: source.y0};
+	return diagonal({source: o, target: o});
+	});
+
+  // Transition links to their new position.
+  link.transition()
+	.duration(duration)
+	.attr("d", diagonal);
+
+  // Transition exiting nodes to the parent's new position.
+  link.exit().transition()
+	.duration(duration)
+	.attr("d", function(d) {
+	var o = {x: source.x, y: source.y};
+	return diagonal({source: o, target: o});
+	})
+	.remove();
+
+  // Stash the old positions for transition.
+  nodes.forEach(function(d) {
+  d.x0 = d.x;
+  d.y0 = d.y;
+  });
+}
+
+// Toggle children on click.
+function click(d) {
+  if (d.children) {
+  d._children = d.children;
+  d.children = null;
+  } else {
+  d.children = d._children;
+  d._children = null;
+  }
+  update(d);
+}
+
+
+
+</script>
+ 
+  </body>
+</html>
